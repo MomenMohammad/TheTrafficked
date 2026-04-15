@@ -9,7 +9,7 @@ public class faghtingController : MonoBehaviour
     public float movementSpeed = 1f;
     public float rotationSpeed = 10f;
     private CharacterController characterController;
-    private Animator animator;
+    public Animator animator;
     public CharacterVideoAnimator videoAnimator;
 
     [Header("Player Fight")]
