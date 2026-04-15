@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FightingController : MonoBehaviour
+public class faghtingController : MonoBehaviour
 {
     [Header("Player Movement")]
     public float movementSpeed = 1f;
@@ -15,6 +15,8 @@ public class FightingController : MonoBehaviour
     public int attackDamage = 5;
     public string[] attackAnimations = { "Attack1Animation", "Attack2Animation", "Attack3Animation", "Attack4Animation" };
     public float dodgeDistance = 2f;
+    public float attackRadius = 2.2f;
+    public Transform[] opponents;
     private float lastAttackTime;
 
     [Header("Effects and sounds")]
@@ -23,8 +25,18 @@ public class FightingController : MonoBehaviour
     public ParticleSystem attack3Effect;
     public ParticleSystem attack4Effect;
 
+    public AudioClip[] hitSounds;
+
+    [Header("Health")]
+    public int maxHealth = 100;
+    public int currentHealth;
+    public HealthBar healthBar;
+    private bool canTakeDamage = true;
+
     void Awake()
     {
+        currentHealth = maxHealth;
+        healthBar.GiveFullHealth(currentHealth);
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
     }
@@ -99,6 +111,13 @@ public class FightingController : MonoBehaviour
             lastAttackTime = Time.time;
 
             //Loop through each opponent
+            foreach (Transform opponent in opponents)
+            {
+                if (Vector3.Distance(transform.position, opponent.position) <= attackRadius)
+                {
+                    opponent.GetComponent<OpponentAI>().StartCoroutine(opponent.GetComponent<OpponentAI>().PlayHitDamageAnimation(attackDamage));
+                }
+            }
         }
         else
         {
@@ -115,6 +134,39 @@ public class FightingController : MonoBehaviour
 
             characterController.Move(dodgeDiretion);
         }
+    }
+
+    public IEnumerator PlayHitDamageAnimation(int takeDamage)
+    {
+        if (!canTakeDamage) yield break;
+
+        canTakeDamage = false;
+
+        yield return new WaitForSeconds(0.5f);
+
+        if (hitSounds != null && hitSounds.Length > 0)
+        {
+            int randomIndex = Random.Range(0, hitSounds.Length);
+            AudioSource.PlayClipAtPoint(hitSounds[randomIndex], transform.position);
+        }
+
+        currentHealth -= takeDamage;
+        healthBar.SetHealth(currentHealth);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+
+        animator.Play("HitDamageAnimation");
+
+        yield return new WaitForSeconds(0.3f);
+        canTakeDamage = true;
+    }
+
+    void Die()
+    {
+        print("Deeeid");
     }
 
     public void Attack1Effect()
