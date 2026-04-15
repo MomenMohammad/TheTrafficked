@@ -14,7 +14,14 @@ public class FightingController : MonoBehaviour
     public float attackCooldown = 0.5f;
     public int attackDamage = 5;
     public string[] attackAnimations = { "Attack1Animation", "Attack2Animation", "Attack3Animation", "Attack4Animation" };
+    public float dodgeDistance = 2f;
     private float lastAttackTime;
+
+    [Header("Effects and sounds")]
+    public ParticleSystem attack1Effect;
+    public ParticleSystem attack2Effect;
+    public ParticleSystem attack3Effect;
+    public ParticleSystem attack4Effect;
 
     void Awake()
     {
@@ -25,6 +32,7 @@ public class FightingController : MonoBehaviour
     void Update()
     {
         PerformMovement();
+        PerformDodgeFront();
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -86,7 +94,7 @@ public class FightingController : MonoBehaviour
             animator.Play(attackAnimations[attackIndex]);
 
             int damage = attackDamage;
-            Debug.Log("Performed attack " + (attackIndex + 1) + " dealing " + damage + " damage ");
+            Debug.Log("Performed attack" + (attackIndex + 1) + "dealing" + damage + "damage");
 
             lastAttackTime = Time.time;
 
@@ -94,9 +102,35 @@ public class FightingController : MonoBehaviour
         }
         else
         {
-            //If the player tries to perform an attack to quickly, inform them
-            Debug.Log("Cannot perform attack yet. Cooldown time remaining");
+            Debug.Log("Endlag");
+        }
+    }
+    void PerformDodgeFront()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            animator.Play("DodgeFrontAnimation");
+
+            Vector3 dodgeDiretion = transform.forward * dodgeDistance;
+
+            characterController.Move(dodgeDiretion);
         }
     }
 
+    public void Attack1Effect()
+    {
+        attack1Effect.Play();
+    }
+    public void Attack2Effect()
+    {
+        attack2Effect.Play();
+    }
+    public void Attack3Effect()
+    {
+        attack3Effect.Play();
+    }
+    public void Attack4Effect()
+    {
+        attack4Effect.Play();
+    }
 }
