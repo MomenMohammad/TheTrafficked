@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Video;
 
 public class faghtingController : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class faghtingController : MonoBehaviour
     public float rotationSpeed = 10f;
     private CharacterController characterController;
     private Animator animator;
+    public CharacterVideoAnimator videoAnimator;
 
     [Header("Player Fight")]
     public float attackCooldown = 0.5f;
@@ -67,9 +69,9 @@ public class faghtingController : MonoBehaviour
     void PerformMovement()
     {
         float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
+        //float verticalInput = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(-verticalInput, 0f, horizontalInput);
+        Vector3 movement = new Vector3(0f, 0f, horizontalInput);
 
         if (movement != Vector3.zero)
         {
@@ -79,20 +81,24 @@ public class faghtingController : MonoBehaviour
             if (horizontalInput > 0)
             {
                 animator.SetBool("Walking", true);
+                videoAnimator.PlayAnimation(1);
             }
             else if (horizontalInput < 0)
             {
                 animator.SetBool("Walking", true);
+                videoAnimator.PlayAnimation(1);
             }
 
-            else if (verticalInput != 0)
-            {
-                animator.SetBool("Walking", true);
-            }
+            //else if (verticalInput != 0)
+            //{
+            //    animator.SetBool("Walking", true);
+            //    videoAnimator.PlayAnimation(0);
+            //}
         }
         else
         {
             animator.SetBool("Walking", false);
+            videoAnimator.PlayAnimation(0);
         }
 
         characterController.Move(movement * movementSpeed * Time.deltaTime);
@@ -104,6 +110,7 @@ public class faghtingController : MonoBehaviour
         if (Time.time - lastAttackTime > attackCooldown)
         {
             animator.Play(attackAnimations[attackIndex]);
+            videoAnimator.PlayAnimation(2, true);
 
             int damage = attackDamage;
             Debug.Log("Performed attack" + (attackIndex + 1) + "dealing" + damage + "damage");
@@ -129,6 +136,7 @@ public class faghtingController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             animator.Play("DodgeFrontAnimation");
+            videoAnimator.PlayAnimation(3);
 
             Vector3 dodgeDiretion = transform.forward * dodgeDistance;
 
@@ -159,6 +167,7 @@ public class faghtingController : MonoBehaviour
         }
 
         animator.Play("HitDamageAnimation");
+        videoAnimator.PlayAnimation(4,true);
 
         yield return new WaitForSeconds(0.3f);
         canTakeDamage = true;

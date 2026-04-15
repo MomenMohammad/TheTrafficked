@@ -9,6 +9,7 @@ public class OpponentAI : MonoBehaviour
     public float rotationSpeed = 10f;
     public CharacterController characterController;
     public Animator animator;
+    public CharacterVideoAnimator videoAnimator;
 
     [Header("Opponent Fight")]
     public float attackCooldown = 0.5f;
@@ -49,6 +50,7 @@ public class OpponentAI : MonoBehaviour
             if (players[i].gameObject.activeSelf && Vector3.Distance(transform.position, players[i].position) <= attackRadius)
             {
                 animator.SetBool("Walking", false);
+                videoAnimator.PlayAnimation(0);
 
                 if (Time.time - lastAttackTime > attackCooldown)
                 {
@@ -73,6 +75,7 @@ public class OpponentAI : MonoBehaviour
                     transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
                     animator.SetBool("Walking", true);
+                    videoAnimator.PlayAnimation(1);
                 }
             }
         }
@@ -81,6 +84,7 @@ public class OpponentAI : MonoBehaviour
     {
 
         animator.Play(attackAnimations[attackIndex]);
+        videoAnimator.PlayAnimation(2, true);
 
         int damage = attackDamage;
         Debug.Log("Performed attack" + (attackIndex + 1) + "dealing" + damage + "damage");
@@ -91,6 +95,7 @@ public class OpponentAI : MonoBehaviour
     void PerformDodgeFront()
     {
         animator.Play("DodgeFrontAnimation");
+        videoAnimator.PlayAnimation(3, true);
 
         Vector3 dodgeDiretion = -transform.forward * dodgeDistance;
 
@@ -124,6 +129,7 @@ public class OpponentAI : MonoBehaviour
         }
 
         animator.Play("HitDamageAnimation");
+        videoAnimator.PlayAnimation(4, true);
 
         yield return new WaitForSeconds(0.3f);
         canTakeDamage = true;
